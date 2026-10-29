@@ -1,14 +1,19 @@
 #include <stdio.h>
 #include "display.h"
+#include "vector.h"
+
+// macro
+#define N_POINTS (9 * 9 * 9)
 
 bool isRunning = true;
 
+vect3_t cube[N_POINTS];
 /* function prototypes*/
 void processInput(void);
 void render(void);
 void update(void);
 void setUp(void);
-
+vect2_t project(vect3_t point);
 
 int main()
 {
@@ -32,8 +37,6 @@ int main()
 
     return 0;
 }
-
-
 
 void processInput(void)
 {
@@ -79,4 +82,27 @@ void setUp(void)
                                            SDL_PIXELFORMAT_ARGB8888,
                                            SDL_TEXTUREACCESS_STREAMING,
                                            WINDOW_WIDTH, WINDOW_HEIGHT);
+
+    // load array of points
+    int i = 0;
+    for (float x = -1.0; x < 1.0; x += 0.25)
+    {
+
+        for (float y = -1.0; y < 1.0; y += 0.25)
+        {
+
+            for (float z = -1.0; z < 1.0; z += 0.25)
+            {
+                vect3_t p = {x, y, z};
+                cube[i] = p;
+                i++;
+            }
+        }
+    }
+}
+
+vect2_t project(vect3_t point)
+{
+    vect2_t p = {point.x, point.y};
+    return p;
 }
