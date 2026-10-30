@@ -3,14 +3,15 @@
 #include "vector.h"
 
 // macro
-#define N_POINTS (9 * 9 * 9)
+#define POINTS_PER_AXIS 9
+#define N_POINTS (POINTS_PER_AXIS * POINTS_PER_AXIS * POINTS_PER_AXIS)
 
 bool isRunning = true;
 vect3_t cube[N_POINTS];
 vect2_t projectedPoints[N_POINTS];
 float fov = 640; // field of view
 vect3_t cameraPosition = {.x = 0, .y = 0, .z= -5};
-vect3_t cubeRotation = {};
+vect3_t cubeRotation = {0};
 
 /* function prototypes*/
 void processInput(void);
@@ -62,27 +63,35 @@ void processInput(void)
 
 void render(void)
 {
+    // Rebuild the framebuffer so previous cube positions do not leave trails.
+    clearColorBuffer(0xFF000000);
+    createDottedGrid(10, 0xFF008080);
+
     for (int i = 0; i < N_POINTS; i++)
     {
 
         renderRectangle(projectedPoints[i].x + WINDOW_WIDTH / 2, projectedPoints[i].y + WINDOW_HEIGHT / 2, 3, 3, 0xFF00FF00);
     }
     renderColorBuffer();
-    createDottedGrid(10, 0xFF008080);
     SDL_RenderPresent(renderer);
 }
 
 void update(void)
 {
 
-    cubeRotation.x += 0.1;
+    cubeRotation.y += 0.1;
     for (int i = 0; i < N_POINTS; i++)
     {
         vect3_t cubePoint = cube[i];
 
+        // rotate the cube
+    
+        vect3_t rotatedPoint = vect3RotateY(cubePoint, cubeRotation.y);
+   
+
         // move away from the camera
-        cubePoint.z -= cameraPosition.z;
-        vect2_t projectedPoint = project(cubePoint);
+        rotatedPoint.z -= cameraPosition.z;
+        vect2_t projectedPoint = project(rotatedPoint);
         projectedPoints[i] = projectedPoint;
     }
 }
@@ -104,15 +113,20 @@ void setUp(void)
 
     // load array of points
     int i = 0;
-    for (float x = -1.0; x < 1.0; x += 0.25)
+    for (int x = 0; x < POINTS_PER_AXIS; x++)
     {
 
-        for (float y = -1.0; y < 1.0; y += 0.25)
+        for (int y = 0; y < POINTS_PER_AXIS; y++)
         {
 
-            for (float z = -1.0; z < 1.0; z += 0.25)
+            for (int z = 0; z < POINTS_PER_AXIS; z++)
             {
-                vect3_t p = {x, y, z};
+                // Include both endpoints: -1, -0.75, ..., 0.75, 1.
+                vect3_t p = {
+                    -1.0f + 2.0f * x / (POINTS_PER_AXIS - 1),
+                    -1.0f + 2.0f * y / (POINTS_PER_AXIS - 1),
+                    -1.0f + 2.0f * z / (POINTS_PER_AXIS - 1)
+                };
                 cube[i] = p;
                 i++;
             }
