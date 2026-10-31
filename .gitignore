@@ -1,3 +1,6 @@
 # Compiled executable and object files
 /renderer
 *.o
+
+# Private learning guide and generated illustrations
+/local-notes/

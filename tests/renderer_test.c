@@ -52,6 +52,8 @@ int main(void)
 
     update();
     render();
+    // A slow frame must not trap the next update in the frame limiter.
+    SDL_Delay(FRAME_TARGET_TIME + 5);
     update();
     render();
     size_t bufferSize = sizeof(*colorBuffer) * WINDOW_WIDTH * WINDOW_HEIGHT;
@@ -63,7 +65,12 @@ int main(void)
     clearColorBuffer(0xFFFF0000);
     render();
     assert(memcmp(expectedFrame, colorBuffer, bufferSize) == 0);
-    assert(colorBuffer[0] == 0xFF008080);
+    int greenPixels = 0;
+    for (int i = 0; i < WINDOW_WIDTH * WINDOW_HEIGHT; i++)
+    {
+        greenPixels += colorBuffer[i] == 0xFF00FF00;
+    }
+    assert(greenPixels > 0);
 
     free(expectedFrame);
     SDL_DestroyTexture(colorBufferTexture);

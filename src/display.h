@@ -24,5 +24,4 @@ void setFullScreen(void);
 void destroyWindow(void);
 void renderRectangle(int x, int y, int w, int h, uint32_t color);
 
-
 #endif
