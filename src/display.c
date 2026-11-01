@@ -32,7 +32,7 @@ bool initializeWindow(void)
     if (!renderer)
     {
         fprintf(stderr, "Error creating SDL renderer: %s\n", SDL_GetError());
-        false;
+        return false;
     }
 
     SDL_SetRenderDrawColor(renderer, 66, 0xcc, 33, 10);
@@ -141,4 +141,37 @@ void renderRectangle(int x, int y, int w, int h, uint32_t color)
                 setPixel(i, j, color);
         }
     }
+}
+
+void drawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, uint32_t color)
+{
+
+    drawLine(x1, y1, x2, y2, color);
+    drawLine(x2, y2, x3, y3, color);
+    drawLine(x3, y3, x1, y1, color);
+}
+
+void drawLine(int x1, int y1, int x2, int y2, uint32_t color)
+{
+
+    int dx = x2 - x1;
+    int dy = y2 - y1;
+    int steps = abs(dx) > abs(dy) ? abs(dx) : abs(dy);
+    if (steps == 0)
+    {
+        setPixel(x1, y1, color);
+        return;
+    }
+    float xIncrement = dx / (float)steps;
+    float yIncrement = dy / (float)steps;
+    float x = x1;
+    float y = y1;
+    for (int i = 0; i < steps; i++)
+    {
+        setPixel((int)x, (int)y, color);
+        x += xIncrement;
+        y += yIncrement;
+    }
+    // Use the exact endpoint to avoid floating-point accumulation error.
+    setPixel(x2, y2, color);
 }
