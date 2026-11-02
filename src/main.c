@@ -3,6 +3,7 @@
 #include "vector.h"
 #include "mesh.h"
 #include "triangle.h"
+#include "array.h"
 
 // macros
 #define FPS 60
@@ -10,11 +11,11 @@
 
 /* Global Variables */
 
-triangle_t trianglesToRender[N_MESH_FACES];
+triangle_t *trianglesToRender = NULL;
 bool isRunning = true;
 float fov = 524; // field of view
 vect3_t cameraPosition = {.x = 0, .y = 0, .z = -5};
-vect3_t cubeRotation = {.x = 0, .y = 0, .z = 0};
+vect3_t meshRotation = {.x = 0, .y = 0, .z = 0};
 static Uint32 previousFrameTime = 0;
 
 /* function prototypes*/
@@ -77,7 +78,8 @@ void render(void)
     // createDottedGrid(10, 0xFF008080);
 
     // loop over all prijected triangles and render them
-    for (int i = 0; i < N_MESH_FACES; i++)
+    int num_triangles = array_length(trianglesToRender);
+    for (int i = 0; i < num_triangles; i++)
     {
         triangle_t triangle = trianglesToRender[i];
 
@@ -85,10 +87,13 @@ void render(void)
         renderRectangle(triangle.points[0].x, triangle.points[0].y, 2, 2, 0xFFFF00);
         renderRectangle(triangle.points[1].x, triangle.points[1].y, 2, 2, 0xFFF00);
         renderRectangle(triangle.points[2].x, triangle.points[2].y, 2, 2, 0xFFFF0000);
-       
+
         // use drawTriangle function from display.c to draw the triangle
         drawTriangle(triangle.points[0].x, triangle.points[0].y, triangle.points[1].x, triangle.points[1].y, triangle.points[2].x, triangle.points[2].y, 0xFFFF0000);
     }
+
+    // clear array of triangles  to be rendered every frame loop
+    array_free(trianglesToRender);
     renderColorBuffer();
     SDL_RenderPresent(renderer);
 }
@@ -96,9 +101,12 @@ void render(void)
 void update(void)
 {
 
-    cubeRotation.x += 0.01;
-    cubeRotation.y += 0.01;
-    cubeRotation.z += 0.01;
+    // intialize trianglesToRender array
+    trianglesToRender = NULL;
+
+    meshRotation.x += 0.01;
+    meshRotation.y += 0.01;
+    meshRotation.z += 0.01;
 
     Uint32 currentTime = SDL_GetTicks();
     Uint32 frameTime = currentTime - previousFrameTime;
@@ -110,14 +118,16 @@ void update(void)
     previousFrameTime = SDL_GetTicks();
 
     // loop over all faces
-    for (int i = 0; i < N_MESH_FACES; i++)
+    int num_mesh_faces = array_length(mesh.faces);
+    for (int i = 0; i < num_mesh_faces; i++)
     {
 
-        face_t face = mesh_faces[i];
+        //face_t face = mesh_faces[i];
+        face_t face = mesh.faces[i];
         vect3_t faceVertices[3];
-        faceVertices[0] = mesh_vertices[face.a - 1];
-        faceVertices[1] = mesh_vertices[face.b - 1];
-        faceVertices[2] = mesh_vertices[face.c - 1];
+        faceVertices[0] =  mesh.vertices[face.a - 1]; 
+        faceVertices[1] =  mesh.vertices[face.b - 1];
+        faceVertices[2] = mesh.vertices[face.c - 1]; 
 
         triangle_t projectedTriangle;
 
@@ -126,9 +136,9 @@ void update(void)
         {
             vect3_t transformedvertex = faceVertices[j];
 
-            transformedvertex = vect3RotateX(transformedvertex, cubeRotation.x);
-            transformedvertex = vect3RotateY(transformedvertex, cubeRotation.y);
-            transformedvertex = vect3RotateZ(transformedvertex, cubeRotation.z);
+            transformedvertex = vect3RotateX(transformedvertex, meshRotation.x);
+            transformedvertex = vect3RotateY(transformedvertex, meshRotation.y);
+            transformedvertex = vect3RotateZ(transformedvertex, meshRotation.z);
 
             // Express the vertex relative to the fixed, forward-facing camera.
             transformedvertex.x -= cameraPosition.x;
@@ -145,7 +155,7 @@ void update(void)
             projectedTriangle.points[j] = projectedVertex;
         }
 
-        trianglesToRender[i] = projectedTriangle;
+        array_push(trianglesToRender, projectedTriangle);
     }
 }
 
@@ -163,10 +173,12 @@ void setUp(void)
                                            SDL_PIXELFORMAT_ARGB8888,
                                            SDL_TEXTUREACCESS_STREAMING,
                                            WINDOW_WIDTH, WINDOW_HEIGHT);
+
+    loadCubeMeshData();
 }
 
 vect2_t project(vect3_t point)
 {
-    vect2_t p = {(fov * point.x) / point.z, (fov * point.y)/point.z };
+    vect2_t p = {(fov * point.x) / point.z, (fov * point.y) / point.z};
     return p;
 }
