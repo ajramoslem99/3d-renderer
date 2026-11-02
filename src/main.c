@@ -25,6 +25,9 @@ void update(void);
 void setUp(void);
 vect2_t project(vect3_t point);
 
+// functions prototypes
+void freeResources(void);
+
 int main()
 {
 
@@ -49,6 +52,7 @@ int main()
     }
 
     destroyWindow();
+    freeResources();
 
     return 0;
 }
@@ -93,6 +97,8 @@ void render(void)
     }
 
     // clear array of triangles  to be rendered every frame loop
+    // array_free(mesh.vertices);
+    // array_free(mesh.faces);
     array_free(trianglesToRender);
     renderColorBuffer();
     SDL_RenderPresent(renderer);
@@ -122,12 +128,12 @@ void update(void)
     for (int i = 0; i < num_mesh_faces; i++)
     {
 
-        //face_t face = mesh_faces[i];
+        // face_t face = mesh_faces[i];
         face_t face = mesh.faces[i];
         vect3_t faceVertices[3];
-        faceVertices[0] =  mesh.vertices[face.a - 1]; 
-        faceVertices[1] =  mesh.vertices[face.b - 1];
-        faceVertices[2] = mesh.vertices[face.c - 1]; 
+        faceVertices[0] = mesh.vertices[face.a - 1];
+        faceVertices[1] = mesh.vertices[face.b - 1];
+        faceVertices[2] = mesh.vertices[face.c - 1];
 
         triangle_t projectedTriangle;
 
@@ -181,4 +187,12 @@ vect2_t project(vect3_t point)
 {
     vect2_t p = {(fov * point.x) / point.z, (fov * point.y) / point.z};
     return p;
+}
+
+void freeResources(void)
+{
+    array_free(mesh.faces);
+    array_free(mesh.vertices);
+    free(colorBuffer);
+    colorBufferTexture = NULL;
 }

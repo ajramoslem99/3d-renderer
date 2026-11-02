@@ -75,11 +75,9 @@ void setPixel(int x, int y, uint32_t color)
 
 void destroyWindow(void)
 {
-    free(colorBuffer);
-    SDL_DestroyRenderer(renderer);
+     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
-    colorBufferTexture = NULL;
 }
 
 void createGrid(int offset, uint32_t color)
