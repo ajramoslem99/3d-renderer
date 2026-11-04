@@ -8,6 +8,9 @@
 #define N_CUBE_FACES 12 // 6 cube faces two triangles per face
 
 void loadCubeMeshData(void);
+// Replaces mesh geometry on success; preserves it on failure.
+// Loads positions and fan-triangulated convex faces. OBJ lines must be < 4095 characters.
+void loadObjFileData(const char *fileName);
 
 extern vect3_t mesh_vertices[N_CUBE_VERTICES];
 

@@ -13,7 +13,7 @@
 
 triangle_t *trianglesToRender = NULL;
 bool isRunning = true;
-float fov = 524; // field of view
+float fov = 512; // field of view
 vect3_t cameraPosition = {.x = 0, .y = 0, .z = -5};
 vect3_t meshRotation = {.x = 0, .y = 0, .z = 0};
 static Uint32 previousFrameTime = 0;
@@ -144,7 +144,7 @@ void update(void)
 
             transformedvertex = vect3RotateX(transformedvertex, meshRotation.x);
             transformedvertex = vect3RotateY(transformedvertex, meshRotation.y);
-            transformedvertex = vect3RotateZ(transformedvertex, meshRotation.z);
+            // transformedvertex = vect3RotateZ(transformedvertex, meshRotation.z);
 
             // Express the vertex relative to the fixed, forward-facing camera.
             transformedvertex.x -= cameraPosition.x;
@@ -180,7 +180,10 @@ void setUp(void)
                                            SDL_TEXTUREACCESS_STREAMING,
                                            WINDOW_WIDTH, WINDOW_HEIGHT);
 
-    loadCubeMeshData();
+    // load the cube values into mesh data structure
+    //loadCubeMeshData();
+
+    loadObjFileData("./src/assets/torus.obj");
 }
 
 vect2_t project(vect3_t point)
