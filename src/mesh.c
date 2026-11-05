@@ -61,8 +61,15 @@ void loadCubeMeshData(void)
     }
 }
 
-void loadObjFileData(const char *fileName)
+void loadObjFileData(const char *fileName, mesh_t *destination)
 {
+
+    if (destination == NULL)
+    {
+        fprintf(stderr, "Destination mesh is NULL\n");
+        return;
+    }
+
     if (fileName == NULL)
     {
         fprintf(stderr, "OBJ filename is NULL\n");
@@ -76,38 +83,112 @@ void loadObjFileData(const char *fileName)
         return;
     }
 
-    char line[1024];
+    mesh_t loaded = {0};
+    char line[4096];
+    int lineNumber = 0;
+    const char *error = NULL;
     while (fgets(line, sizeof(line), fp))
     {
-
-        if (strncmp(line, "v ", 2) == 0)
+        lineNumber++;
+        if (strchr(line, '\n') == NULL && !feof(fp))
         {
-
-            // vertext data
-            vect3_t vertex;
-            sscanf(line, "v %f %f %f", &vertex.x, &vertex.y, &vertex.z);
-            array_push(mesh.vertices, vertex);
+            error = "OBJ line is too long";
+            goto failure;
         }
-        else if (strncmp(line, "f ", 2) == 0)
+        char *comment = strchr(line, '#');
+        if (comment != NULL)
+            *comment = '\0';
+        const char *whitespace = " \t\r\n";
+        char *record = strtok(line, whitespace);
+        if (record == NULL)
+            continue;
+        if (strcmp(record, "v") == 0)
         {
-            // face data
-            face_t face;
-            int vertex_indices[3];
-            int texture_indices[3];
-            int normal_indices[3];
-            sscanf(line, "f %d/%d/%d %d/%d/%d %d/%d/%d",
-                   &vertex_indices[0], &texture_indices[0], &normal_indices[0],
-                   &vertex_indices[1], &texture_indices[1], &normal_indices[1],
-                   &vertex_indices[2], &texture_indices[2], &normal_indices[2]);
+            vect3_t vertex;
+            float *coordinates[] = {&vertex.x, &vertex.y, &vertex.z};
+            for (int i = 0; i < 3; i++)
+            {
+                char *token = strtok(NULL, whitespace);
+                char *end;
+                errno = 0;
+                if (token == NULL)
+                {
+                    error = "vertex needs three coordinates";
+                    goto failure;
+                }
+                *coordinates[i] = strtof(token, &end);
+                if (end == token || *end != '\0' || errno == ERANGE || !isfinite(*coordinates[i]))
+                {
+                    error = "invalid vertex coordinate";
+                    goto failure;
+                }
+            }
+            array_push(loaded.vertices, vertex);
+        }
+        else if (strcmp(record, "f") == 0)
+        {
+            int first = 0, previous = 0, count = 0;
+            char *token;
+            while ((token = strtok(NULL, whitespace)) != NULL)
+            {
+                // Only positions are used: accept v, v/vt, v//vn and v/vt/vn.
+                char *end;
+                errno = 0;
+                long index = strtol(token, &end, 10);
+                int vertexCount = array_length(loaded.vertices);
+                if (end == token || (*end != '\0' && *end != '/') ||
+                    errno == ERANGE || index == 0 || index > INT_MAX ||
+                    index < -(long)vertexCount)
+                {
+                    error = "invalid face vertex index";
+                    goto failure;
+                }
+                if (index < 0)
+                    index += vertexCount + 1L;
 
-            face.a = vertex_indices[0];
-            face.b = vertex_indices[1];
-            face.c = vertex_indices[2];
-            array_push(mesh.faces, face);
+                // Fan triangulation: (a,b,c,d) becomes (a,b,c), (a,c,d).
+                if (count == 0)
+                    first = (int)index;
+                else if (count >= 2)
+                {
+                    face_t face = {first, previous, (int)index};
+                    array_push(loaded.faces, face);
+                }
+                previous = (int)index;
+                count++;
+            }
+            if (count < 3)
+            {
+                error = "face needs at least three vertices";
+                goto failure;
+            }
         }
     }
-
-
+    if (ferror(fp) || array_length(loaded.vertices) == 0 || array_length(loaded.faces) == 0)
+    {
+        error = "could not read mesh geometry";
+        goto failure;
+    }
+    int vertexCount = array_length(loaded.vertices);
+    for (int i = 0; i < array_length(loaded.faces); i++)
+    {
+        face_t f = loaded.faces[i];
+        if (f.a > vertexCount || f.b > vertexCount || f.c > vertexCount)
+        {
+            error = "face references a missing vertex";
+            goto failure;
+        }
+    }
     fclose(fp);
-    
+    array_free(destination->vertices);
+    array_free(destination->faces);
+    destination->vertices = loaded.vertices;
+    destination->faces = loaded.faces;
+    return;
+
+failure:
+    fprintf(stderr, "%s:%d: %s\n", fileName, lineNumber, error);
+    fclose(fp);
+    array_free(loaded.vertices);
+    array_free(loaded.faces);
 }

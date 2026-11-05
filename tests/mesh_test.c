@@ -16,7 +16,7 @@ static void loadText(const char *text)
     assert(file != NULL);
     assert(fputs(text, file) >= 0);
     assert(fclose(file) == 0);
-    loadObjFileData(path);
+    loadObjFileData(path, &mesh);
     assert(unlink(path) == 0);
 }
 
@@ -34,7 +34,7 @@ static void assertValidIndices(void)
 
 int main(void)
 {
-    loadObjFileData("src/assets/cube.obj");
+    loadObjFileData("src/assets/cube.obj", &mesh);
     assert(array_length(mesh.vertices) == 8);
     assert(array_length(mesh.faces) == 12);
     assert(mesh.vertices[0].x == 1 && mesh.vertices[0].y == 1 && mesh.vertices[0].z == -1);
@@ -42,9 +42,9 @@ int main(void)
     assert(mesh.faces[1].a == 1 && mesh.faces[1].b == 7 && mesh.faces[1].c == 3);
     assertValidIndices();
 
-    loadObjFileData("src/assets/f117.obj");
-    assert(array_length(mesh.vertices) == 1313);
-    assert(array_length(mesh.faces) == 1421);
+    loadObjFileData("src/assets/torus.obj", &mesh);
+    assert(array_length(mesh.vertices) == 576);
+    assert(array_length(mesh.faces) == 1152);
     assertValidIndices();
 
     loadText("  # whitespace, all face formats, negative indices, inline comments\n"
@@ -79,8 +79,8 @@ int main(void)
         assert(mesh.vertices == vertices && mesh.faces == faces);
         assert(array_length(mesh.vertices) == 4 && array_length(mesh.faces) == 6);
     }
-    loadObjFileData("/dev/null/nonexistent.obj");
-    loadObjFileData(NULL);
+    loadObjFileData("/dev/null/nonexistent.obj", &mesh);
+    loadObjFileData(NULL, &mesh);
     assert(mesh.vertices == vertices && mesh.faces == faces);
 
     // A final line without a newline is valid.
