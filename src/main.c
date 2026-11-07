@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <math.h>
+#include <stdbool.h>
 #include "display.h"
 #include "vector.h"
 #include "mesh.h"
@@ -23,6 +24,9 @@ const char *files[] = {
     "./src/assets/f22.obj",
     "./src/assets/torus.obj",
     "./src/assets/cube.obj"};
+
+bool WIREFRAME = false;
+bool FILLED_TRIANGLES = true;
 
 /* function prototypes*/
 void processInput(void);
@@ -78,6 +82,17 @@ void processInput(void)
         {
             isRunning = false;
         }
+
+        else if ((event.type == SDL_KEYDOWN) && (event.key.keysym.sym == SDLK_w))
+        {
+            FILLED_TRIANGLES = false;
+            WIREFRAME = true;
+        }
+        else if ((event.type == SDL_KEYDOWN) && (event.key.keysym.sym == SDLK_f))
+        {
+            WIREFRAME = false;
+            FILLED_TRIANGLES = true;
+        }
     }
 }
 
@@ -93,15 +108,29 @@ void render(void)
     {
         triangle_t triangle = trianglesToRender[i];
 
-        //  use renderRectangle function from display.c to draw individual points of the triangle
+        // use renderRectangle function from display.c to draw individual points of the triangle
         // renderRectangle(triangle.points[0].x, triangle.points[0].y, 2, 2, 0xFFFF00);
         // renderRectangle(triangle.points[1].x, triangle.points[1].y, 2, 2, 0xFFF00);
         // renderRectangle(triangle.points[2].x, triangle.points[2].y, 2, 2, 0xFFFF0000);
 
         // use drawTriangle function from display.c to draw the triangle
-        // drawTriangle(triangle.points[0].x, triangle.points[0].y, triangle.points[1].x, triangle.points[1].y, triangle.points[2].x, triangle.points[2].y, 0xff00FF00);
 
-        drawFilledTriangle(300, 50, 50, 400, 300, 500, 0xFF00FF00);
+        if (WIREFRAME)
+        {
+            drawTriangle(triangle.points[0].x, triangle.points[0].y, triangle.points[1].x, triangle.points[1].y, triangle.points[2].x, triangle.points[2].y, 0xffBD9E24);
+        }
+
+        else if (FILLED_TRIANGLES)
+        {
+            drawTriangle(triangle.points[0].x, triangle.points[0].y, triangle.points[1].x, triangle.points[1].y, triangle.points[2].x, triangle.points[2].y, 0xff000000);
+            drawFilledTriangle(triangle.points[0].x, triangle.points[0].y, triangle.points[1].x, triangle.points[1].y, triangle.points[2].x, triangle.points[2].y, 0xffffffff);
+        }
+
+        // drawFilledTriangle(triangle.points[0].x, triangle.points[0].y, triangle.points[1].x, triangle.points[1].y, triangle.points[2].x, triangle.points[2].y, 0xffFFFFFF);
+
+        // draw unfilled triangle
+        // drawTriangle(triangle.points[0].x, triangle.points[0].y, triangle.points[1].x, triangle.points[1].y, triangle.points[2].x, triangle.points[2].y, 0xff000000);
+        // drawFilledTriangle(300, 50, 50, 400, 300, 500, 0xFF00FF00);
     }
 
     array_free(trianglesToRender);

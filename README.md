@@ -24,6 +24,12 @@ Build a renderer that transforms 3D geometry into pixels using our own C code:
 
 **We will not use OpenGL, DirectX, or Vulkan to implement the rendering pipeline.** The CPU will calculate geometry, visibility, and pixel colors. SDL2 will provide the window, input handling, timing, and a way to display the resulting image.
 
+## 🖼️ Current render
+
+![Current renderer output showing an F-22, torus, and cube as wireframe meshes](renderer-screenshot.png)
+
+The current prototype draws model triangle edges into a CPU framebuffer.
+
 ## 🧭 Development roadmap
 
 These areas guide development. Their scope and order may change as the renderer takes shape; this list does not track completion.

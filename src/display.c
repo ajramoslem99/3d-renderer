@@ -17,15 +17,18 @@ bool initializeWindow(void)
         return false;
     }
 
-    window = SDL_CreateWindow(NULL, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, displayMode.w, displayMode.h, SDL_WINDOW_FULLSCREEN_DESKTOP);
+    window = SDL_CreateWindow("3D Renderer",
+                              SDL_WINDOWPOS_CENTERED,
+                              SDL_WINDOWPOS_CENTERED,
+                              WINDOW_WIDTH,
+                              WINDOW_HEIGHT,
+                              SDL_WINDOW_SHOWN);
 
     if (!window)
     {
         fprintf(stderr, "Error creating SDL window: %s\n", SDL_GetError());
         return false;
     }
-
-    setFullScreen();
 
     renderer = SDL_CreateRenderer(window, -1, 0);
 
