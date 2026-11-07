@@ -16,6 +16,7 @@ vect2_t vect2_subtract(vect2_t v1, vect2_t v2);
 vect2_t vect2_mul(vect2_t v, float scalar);
 vect2_t vect2_divide(vect2_t v, float scalar);
 float vect2_dot(vect2_t v1, vect2_t v2);
+void  vect2_normalize(vect2_t* v);
 
 /*=================================== 3d Vectors =================================*/
 typedef struct
@@ -33,7 +34,7 @@ vect3_t vect3_mul(vect3_t v, float scalar);
 vect3_t vect3_divide(vect3_t v, float scalar);
 float vect3_dot(vect3_t v1, vect3_t v2);
 vect3_t vect3_cross(vect3_t v1, vect3_t v2);
-vect3_t vect3_normalize(vect3_t v);
+void vect3_normalize(vect3_t* v);
 vect3_t vect3RotateX(vect3_t v, float angle);
 vect3_t vect3RotateY(vect3_t v, float angle);
 vect3_t vect3RotateZ(vect3_t v, float angle);

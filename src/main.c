@@ -14,9 +14,9 @@
 mesh_t *meshesToRender = NULL;
 triangle_t *trianglesToRender = NULL;
 bool isRunning = true;
-float fov = 556; // field of view
+float fov = 628; // field of view
 vect3_t cameraPosition = {.x = 0, .y = 0, .z = -7};
-//vect3_t cameraPosition = {.x = 0, .y = 0, .z = 0};
+// vect3_t cameraPosition = {.x = 0, .y = 0, .z = 0};
 static Uint32 previousFrameTime = 0;
 
 const char *files[] = {
@@ -99,7 +99,9 @@ void render(void)
         // renderRectangle(triangle.points[2].x, triangle.points[2].y, 2, 2, 0xFFFF0000);
 
         // use drawTriangle function from display.c to draw the triangle
-        drawTriangle(triangle.points[0].x, triangle.points[0].y, triangle.points[1].x, triangle.points[1].y, triangle.points[2].x, triangle.points[2].y, 0xff00FF00);
+        // drawTriangle(triangle.points[0].x, triangle.points[0].y, triangle.points[1].x, triangle.points[1].y, triangle.points[2].x, triangle.points[2].y, 0xff00FF00);
+
+        drawFilledTriangle(300, 50, 50, 400, 300, 500, 0xFF00FF00);
     }
 
     array_free(trianglesToRender);
@@ -166,7 +168,7 @@ void update(void)
                 transformedvertex.y -= cameraPosition.y;
                 transformedvertex.z -= cameraPosition.z;
 
-                //save the transformed vertex
+                // save the transformed vertex
                 transformedVertices[j] = transformedvertex;
             }
 
@@ -178,6 +180,10 @@ void update(void)
             vect3_t vector_AB = vect3_subtract(vector_B, vector_A);
             vect3_t vector_AC = vect3_subtract(vector_C, vector_A);
             vect3_t face_normal = vect3_cross(vector_AC, vector_AB);
+
+            // normalize the face normal vector
+            vect3_normalize(&face_normal);
+
             vect3_t camera_ray = vect3_subtract(vector_A, cameraPosition);
             float dot_product = vect3_dot(face_normal, camera_ray);
 

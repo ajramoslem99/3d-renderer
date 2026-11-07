@@ -102,11 +102,7 @@ This is the intended architecture, not a statement that every stage is implement
 
 ## 🧪 Validation approach
 
-The [local learning notes](local-notes/README.md) collect the illustrated guides:
-
-- [Understanding our dynamic array](local-notes/docs/dynamic-arrays/README.md): memory layout, growth, cleanup, and a runnable example.
-- [From 3D points to pixels and rays](local-notes/docs/raytracing/README.md): camera geometry, parametric lines, projection, and ray–sphere intersection derivations.
-- [Mesh rotation, coordinate spaces, and pivots](local-notes/docs/mesh-transforms/README.md): step-by-step aircraft poses, rotation derivations, and an animated comparison of spinning and orbiting.
+The [renderer math and geometry chapter](docs/course-formulas.md) derives the formulas currently present in the renderer, explains how 2D rotation extends into 3D, and traces a point from object coordinates to a screen pixel. It includes worked coordinates, 15 step-by-step diagrams, language-independent implementation guidance, and geometric checks for debugging. It also distinguishes implemented formulas from roadmap features.
 
 Build with `make build` and review compiler warnings. Use `make run` in a graphical session to inspect rendering behavior and input handling as features are developed.
 

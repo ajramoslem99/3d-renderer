@@ -46,6 +46,13 @@ float vect2_dot(vect2_t v1, vect2_t v2)
     return v1.x * v2.x + v1.y * v2.y;
 }
 
+void vect2_normalize(vect2_t *v)
+{
+    float length = vect2_length(*v);
+    v->x /= length;
+    v->y /= length;
+}
+
 /*=================================== 3d Vectors =================================*/
 // implementations
 /*=================================================================================*/
@@ -103,6 +110,16 @@ vect3_t vect3_cross(vect3_t v1, vect3_t v2)
     result.y = v1.z * v2.x - v1.x * v2.z;
     result.z = v1.x * v2.y - v1.y * v2.x;
     return result;
+}
+
+void vect3_normalize(vect3_t *v)
+{
+
+    float length = vect3_length(*v);
+
+    v->x /= length;
+    v->y /= length;
+    v->z /= length;
 }
 vect3_t vect3RotateX(vect3_t v, float angle)
 {
